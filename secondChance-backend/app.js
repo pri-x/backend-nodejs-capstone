@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const pinoLogger = require('./logger');
+const path = require('path');
 
 const connectToDatabase = require('./models/db');
 const {loadData} = require("./util/import-mongo/index");
@@ -18,30 +19,19 @@ connectToDatabase().then(() => {
 
 app.use(express.json());
 
-// authRoutes Step 2: import the authRoutes
+const secondChanceRoutes = require('./routes/secondChanceItemsRoutes');
 const authRoutes = require('./routes/authRoutes');
-
-// Items API Task 1: import the secondChanceItemsRoutes
-const secondChanceItemsRoutes = require('./routes/secondChanceItemsRoutes');
-
-// Search API Task 1: import the searchRoutes
 const searchRoutes = require('./routes/searchRoutes');
-
 const pinoHttp = require('pino-http');
 const logger = require('./logger');
 
 app.use(pinoHttp({ logger }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// authRoutes
+app.use('/api/secondchance/items', secondChanceRoutes);
 app.use('/api/auth', authRoutes);
-
-// Items API
-app.use('/api/secondchance/items', secondChanceItemsRoutes);
-
-// Search API
 app.use('/api/secondchance/search', searchRoutes);
 
-// Global Error Handler
 app.use((err, req, res, next) => {
     console.error(err);
     res.status(500).send('Internal Server Error');
