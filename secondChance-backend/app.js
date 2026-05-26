@@ -11,7 +11,6 @@ const app = express();
 app.use("*",cors());
 const port = 3060;
 
-// Connect to MongoDB; we just do this one time
 connectToDatabase().then(() => {
     pinoLogger.info('Connected to DB');
 })
@@ -19,10 +18,8 @@ connectToDatabase().then(() => {
 
 app.use(express.json());
 
-// Route files
-
 // authRoutes Step 2: import the authRoutes
-//{{insert code here}}
+const authRoutes = require('./routes/authRoutes');
 
 // Items API Task 1: import the secondChanceItemsRoutes
 const secondChanceItemsRoutes = require('./routes/secondChanceItemsRoutes');
@@ -35,14 +32,13 @@ const logger = require('./logger');
 
 app.use(pinoHttp({ logger }));
 
-// Use Routes
-// authRoutes Step 2: add the authRoutes
-//{{insert code here}}
+// authRoutes
+app.use('/api/auth', authRoutes);
 
-// Items API Task 2: add the secondChanceItemsRoutes
+// Items API
 app.use('/api/secondchance/items', secondChanceItemsRoutes);
 
-// Search API Task 2: add the searchRoutes
+// Search API
 app.use('/api/secondchance/search', searchRoutes);
 
 // Global Error Handler
